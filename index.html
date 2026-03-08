@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Max</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: sans-serif; }
+        canvas { display: block; }
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; text-align: center; padding: 20px; box-sizing: border-box; z-index: 10; }
+        .hidden { display: none !important; }
+        h1 { font-size: clamp(1.5rem, 6vw, 2.5rem); margin-bottom: 20px; color: #e0e0ff; }
+        button { padding: 15px 40px; font-size: 1.1rem; border-radius: 50px; border: 1px solid #555; background: rgba(255,255,255,0.1); color: #fff; cursor: pointer; backdrop-filter: blur(5px); margin: 10px; }
+        #final-text { color: #ff99cc; font-size: clamp(1.2rem, 5vw, 2rem); }
+    </style>
+</head>
+<body>
+
+    <canvas id="space"></canvas>
+
+    <div id="intro-screen" class="screen">
+        <h1>Nossa viagem pelo universo</h1>
+        <p>Posso te levar pra conhecer o universo?<br>Só você e eu.</p>
+        <button id="start-btn">Começar</button>
+    </div>
+
+    <div id="question-screen" class="screen hidden">
+        <h2>Gostou da viagem?</h2>
+        <div>
+            <button id="yes-btn">Sim</button>
+            <button id="no-btn">Não</button>
+        </div>
+    </div>
+
+    <div id="final-screen" class="screen hidden">
+        <h2 id="final-text"></h2>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('space');
+        const ctx = canvas.getContext('2d');
+        let w, h, stars = [];
+        let speed = 0.3;
+
+        function init() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            stars = [];
+            for (let i = 0; i < 300; i++) {
+                stars.push({ x: (Math.random()-0.5)*w, y: (Math.random()-0.5)*h, z: Math.random()*w, size: Math.random()*1.5 + 0.5 });
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+            ctx.fillRect(0, 0, w, h);
+            stars.forEach(s => {
+                s.z -= speed;
+                if (s.z <= 0) { s.z = w; s.x = (Math.random()-0.5)*w; s.y = (Math.random()-0.5)*h; }
+                let scale = w / (w + s.z);
+                let x2 = s.x * scale + w/2;
+                let y2 = s.y * scale + h/2;
+                let r = s.size * scale;
+                let grad = ctx.createRadialGradient(x2, y2, 0, x2, y2, r*2);
+                grad.addColorStop(0, 'white');
+                grad.addColorStop(0.5, 'rgba(200, 200, 255, 0.5)');
+                grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(x2, y2, r*2, 0, Math.PI*2);
+                ctx.fill();
+            });
+            requestAnimationFrame(draw);
+        }
+
+        init();
+        draw();
+
+        // Lógica dos Botões
+        document.getElementById('start-btn').onclick = () => {
+            document.getElementById('intro-screen').classList.add('hidden');
+            speed = 10; 
+            setTimeout(() => {
+                speed = 0.3;
+                document.getElementById('question-screen').classList.remove('hidden');
+            }, 10000);
+        };
+
+        document.getElementById('yes-btn').onclick = () => {
+            document.getElementById('question-screen').classList.add('hidden');
+            document.getElementById('final-text').innerText = "ainda bem, te amo minha Max, feliz dia das mulheres";
+            document.getElementById('final-screen').classList.remove('hidden');
+        };
+
+        document.getElementById('no-btn').onclick = () => {
+            document.getElementById('question-screen').classList.add('hidden');
+            document.getElementById('final-text').innerText = "fds";
+            document.getElementById('final-screen').classList.remove('hidden');
+        };
+    </script>
+</body>
+</html>
