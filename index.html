@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Para Max</title>
+    <style>
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; overflow: hidden; }
+        canvas { position: fixed; top: 0; left: 0; z-index: 0; }
+        
+        /* Centralização total para qualquer tela */
+        .screen { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            display: flex; justify-content: center; align-items: center; 
+            padding: 20px; z-index: 10;
+        }
+        
+        .hidden { display: none !important; }
+        
+        /* Cartão elegante com efeito vidro */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px 30px;
+            border-radius: 30px;
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+
+        h1 { font-size: 1.6rem; font-weight: 300; margin-bottom: 15px; color: #fff; }
+        p { font-size: 1.1rem; line-height: 1.5; margin-bottom: 30px; opacity: 0.9; }
+        
+        button { 
+            width: 100%; padding: 16px; border-radius: 15px; border: none; 
+            background: #fff; color: #000; font-size: 1rem; font-weight: 600; 
+            cursor: pointer; transition: all 0.2s;
+        }
+        button:active { transform: scale(0.96); opacity: 0.8; }
+        
+        .btn-group { display: flex; flex-direction: column; gap: 10px; }
+    </style>
+</head>
+<body>
+
+    <canvas id="space"></canvas>
+
+    <div id="intro-screen" class="screen">
+        <div class="glass-card">
+            <h1>Nossa viagem pelo universo</h1>
+            <p>Posso te levar pra conhecer o universo?<br>Só você e eu.</p>
+            <button id="start-btn">Começar</button>
+        </div>
+    </div>
+
+    <div id="question-screen" class="screen hidden">
+        <div class="glass-card">
+            <h1>Gostou da viagem?</h1>
+            <div class="btn-group">
+                <button id="yes-btn">Sim</button>
+                <button id="no-btn">Não</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="final-screen" class="screen hidden">
+        <div class="glass-card">
+            <h1 id="final-text"></h1>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('space');
+        const ctx = canvas.getContext('2d');
+        let w, h, stars = [];
+        let speed = 0.2;
+
+        function init() {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            stars = Array.from({ length: 300 }, () => ({
+                x: (Math.random() - 0.5) * 2000,
+                y: (Math.random() - 0.5) * 2000,
+                z: Math.random() * 1000,
+                size: Math.random() * 2 + 0.5
+            }));
+        }
+
+        function animate() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+            ctx.fillRect(0, 0, w, h);
+            stars.forEach(s => {
+                s.z -= speed;
+                if (s.z <= 0) s.z = 1000;
+                let scale = 500 / (s.z + 500);
+                let x = s.x * scale + w / 2;
+                let y = s.y * scale + h / 2;
+                let alpha = (1 - s.z / 1000);
+                ctx.beginPath();
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.shadowBlur = s.size * 2;
+                ctx.shadowColor = "white";
+                ctx.arc(x, y, s.size * scale, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+
+        document.getElementById('start-btn').onclick = () => {
+            document.getElementById('intro-screen').classList.add('hidden');
+            speed = 20;
+            setTimeout(() => {
+                speed = 0.2;
+                document.getElementById('question-screen').classList.remove('hidden');
+            }, 4000);
+        };
+
+        document.getElementById('yes-btn').onclick = () => {
+            document.getElementById('question-screen').classList.add('hidden');
+            document.getElementById('final-text').innerText = "Ainda bem, te amo minha Max, feliz dia das mulheres ✨";
+            document.getElementById('final-screen').classList.remove('hidden');
+        };
+
+        document.getElementById('no-btn').onclick = () => {
+            document.getElementById('question-screen').classList.add('hidden');
+            document.getElementById('final-text').innerText = "fds";
+            document.getElementById('final-screen').classList.remove('hidden');
+        };
+    </script>
+</body>
+</html>
